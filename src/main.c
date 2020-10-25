@@ -10,9 +10,16 @@
 
 # include "../header/simdsort.h"
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char** argv) {
 
-    printHola();
+    char* iValue = (char*)malloc(sizeof(char)); // Archivo binario con la lista de entrada desordenados
+    char* oValue = (char*)malloc(sizeof(char)); // Archivo binario de salida con la lista ordenada
+    char* nValue = (char*)malloc(sizeof(char)); // Largo de la lista
+    char* dValue = (char*)malloc(sizeof(char)); // Bandera para mostrar por consola los resultados
+
+    if ( (iValue != NULL) && (oValue != NULL) && (nValue != NULL) && (dValue != NULL) )
+        getParams (argc, argv, iValue, oValue, nValue, dValue);
+
     return 0;
 }
 

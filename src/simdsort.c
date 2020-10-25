@@ -17,53 +17,42 @@
 // - OUTPUTS: 
 // - DESCRIPTION:
 
-void getParams (int argc, char** argv, char* cValue, char* mValue, char* nValue, char* bValue) {
-/*
-    int c;
-    int int_n;
-    strcpy(bValue, "0");
+void getParams (int argc, char** argv, char* iValue, char* oValue, char* nValue, char* dValue) {
 
-    // c: Cantidad de Imagenes (int)
-    // m: Archivo con la mascara o kernel (string)
-    // n: Umbral de negrura (nearly black) (porcentaje int)
-    // b: Bandera (Mostrar resultados por pantalla (1) o no (0)) (binario)
+    int c;
+    strcpy(dValue, "0");
+
+    // i: Archivo binario con la lista de entrada desordenados (string)
+    // o: Archivo binario de salida con la lista ordenada (string)
+    // n: Largo de la lista (int)
+    // d: Bandera (Mostrar resultados por pantalla (1) o no (0)) (binario)
     // Ejecutar como:
-    //      ./pipeline -c (cValue) -m (mValue) -n (nValue) -b
-    while ( (c = getopt (argc, argv, "c:m:n:b")) != -1) {
+    //      ./simdsort -i desordenada.raw -o ordenada.raw -N num_elementos -d debug
+    while ( (c = getopt (argc, argv, "i:o:N:d")) != -1) {
 
         switch (c) {
-            case 'c':
-                strcpy(cValue, optarg);
-                // Verificacion de que se ingresa una cantidad de imagenes valida, osea un numero entero positivo
-                if (!isInteger(cValue) || (strcmp(cValue, "0") == 0) ) {
-                    printf ("%s\n", "-------------------------------------------------------------------------");
-                    printf (" => El argumento de -%c debe ser un ENTERO POSITIVO MAYOR A 0.\n", c);
-                    printf (" => Programa abortado\n");
-                    printf ("%s\n", "-------------------------------------------------------------------------");
-                    abort ();
-                }
-
-                printf(" => Cantiad de imagenes (-c): %s\n", cValue);
-                break;
-            
-            case 'm':
-                strcpy(mValue, optarg);
-                // Verificacion que el arcivo ingresado existe 
-                if (!exist(mValue)) {
+            case 'i':
+                strcpy(iValue, optarg);
+                // Verificacion que el archivo de entrada existe 
+                if (!exist(iValue)) {
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     printf (" => El argumento de -%c debe ser un ARCHIVO EXISTENTE.\n", c);
                     printf (" => Programa abortado\n");
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     abort ();
-                }
+                }       
 
-                printf(" => Ruta de la mascara (-m): %s\n", mValue);
+                printf(" => Ruta del archivo de entrada (-i): %s\n", iValue);
                 break;
             
-            case 'n':
+            case 'o':
+                strcpy(oValue, optarg);
+                printf(" => Ruta de la mascara (-o): %s\n", oValue);
+                break;
+            
+            case 'N':
                 strcpy(nValue, optarg);
-                int_n = atoi(optarg);
-                // Verificacion de que se ingresa una cantidad de imagenes valida, osea un numero entero positivo
+                // Verificacion de que se ingresa un numero entero positivo
                 if (!isInteger(nValue)) {
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     printf (" => El argumento de -%c debe ser un ENTERO POSITIVO.\n", c);
@@ -71,35 +60,26 @@ void getParams (int argc, char** argv, char* cValue, char* mValue, char* nValue,
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     abort ();
                 }
-
-                // Verificacion de que se ingresa una cantidad de imagenes valida, osea un numero entero positivo entre 0 y 100
-                if (!isPercentage(int_n)) {
-                    printf ("%s\n", "-------------------------------------------------------------------------");
-                    printf (" => El argumento de -%c debe ser un ENTERO POSITIVO ENTRE 0 Y 100.\n", c);
-                    printf (" => Programa abortado\n");
-                    printf ("%s\n", "-------------------------------------------------------------------------");
-                    abort ();
-                }
             
-                printf(" => Umbral (-n): %s\n", nValue);
+                printf(" => Largo de la lista (-N): %s\n", nValue);
                 break;
             
-            case 'b':
-                strcpy(bValue, "1");
+            case 'd':
+                strcpy(dValue, "1");
 
-                printf(" => Opcion b (-b): %s\n", bValue);
+                printf(" => Opcion debug (-d): %s\n", dValue);
                 break;
             
             case '?':
                 // Verificacion de existencia de argumentos
-                if ( (optopt == 'c') || (optopt == 'm') || (optopt == 'n') ) { 
+                if ( (optopt == 'i') || (optopt == 'i') || (optopt == 'N') ) { 
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     printf (" => La opcion -%c requiere un argumento.\n", optopt);
                     printf (" => Programa abortado\n");
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     abort ();
                 }
-                // VErificacion de la validez de las banderas
+                // Verificacion de la validez de las banderas
                 else if (isprint (optopt)) {
                     printf ("%s\n", "-------------------------------------------------------------------------");
                     printf (" => Opcion -%c desconocida.\n", optopt);
@@ -112,12 +92,42 @@ void getParams (int argc, char** argv, char* cValue, char* mValue, char* nValue,
                 break;
             }
     }
-    */
 }
 
-void printHola() {
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - fileName: Nombre del archivo a leer
+// - OUTPUTS: Valor booleano 1 si el archivo existe, 0 en caso contrario
+// - DESCRIPTION: Verifica que el archivo con el nombre "fileName" existe y devuelve la verificacion.
 
-    printf("HOLA ME COMPILE XD\n");
+int exist (char* fileName) {
+
+    FILE* f = fopen(fileName, "r");
+
+    if (f != NULL) {
+        fclose(f);
+        return 1;
+    }
+      
+    return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
+// - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
+// - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
+//                digito y es positivo
+
+int isInteger (char* input) {
+
+    int c;
+
+    for (c = 0; c < strlen(input); c++) {
+
+        if (!isdigit(input[c]))
+            return 0;
+    }
+
+    return 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
