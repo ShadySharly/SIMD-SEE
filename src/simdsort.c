@@ -223,6 +223,78 @@ void inRegister (__m128 A, __m128 B, __m128 C, __m128 D, __m128* W_F, __m128* X_
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: 4 registros desde inRegister
+// - OUTPUTS: 4 arreglos ordenados
+// - DESCRIPTION: BMN
+
+void bmn (__m128 W_F, __m128 X_F, __m128 Y_F, __m128 Z_F, __m128* WF, __m128* XF, __m128* YF, __m128* ZF){
+    
+    __m128 W_1, W_2, W_3, W_4, W_5, W_6, W_7, W_8;
+    __m128 XI, XI_1, XI_2, XI_3, XI_4, XI_5, XI_6, XI_7, XI_8;
+    __m128 Y_1, Y_2, Y_3, Y_4, Y_5, Y_6, Y_7, Y_8;
+    __m128 ZI, ZI_1, ZI_2, ZI_3, ZI_4, ZI_5, ZI_6, ZI_7, ZI_8;
+
+
+    //Shuffle 1, se reordenan los registros X e Y en orden decreciente
+    XI = _mm_shuffle_ps(X_F, X_F, __MM_SHUFFLE(0,1,2,3));
+    ZI = _mm_shuffle_ps(Z_F, Z_F, __MM_SHUFFLE(0,1,2,3));
+
+    //min max paso 1
+    W_1 = _mm_min_ps(W_F, XI);
+    Y_1 = _mm_min_ps(Y_F, ZI);
+    XI_1 = _mm_max_ps(W_F, XI);
+    ZI_1 = _mm_max_ps(Y_F, ZI);
+
+    //Shuffle paso 2
+    W_2 = _mm_shuffle_ps(XI_1, W_1, __MM_SHUFFLE(1,0,1,0));
+    Y_2 = _mm_shuffle_ps(ZI_1, Y_1, __MM_SHUFFLE(1,0,1,0));
+    XI_2 = _mm_shuffle_ps(XI_1, W_1, __MM_SHUFFLE(3,2,3,2));
+    ZI_2 = _mm_shuffle_ps(ZI_1, Y_1, __MM_SHUFFLE(3,2,3,2));
+
+    //Shufle paso 3
+    W_3 = _mm_shuffle_ps(W_2, W_2, __MM_SHUFFLE(3,1,2,0));
+    XI_3 = _mm_shuffle_ps(XI_2, XI_2, __MM_SHUFFLE(3,1,2,0));
+    Y_3 = _mm_shuffle_ps(Y_2, Y_2, __MM_SHUFFLE(3,1,2,0));
+    ZI_3 = _mm_shuffle_ps(ZI_2, ZI_2, __MM_SHUFFLE(3,1,2,0));
+
+    //min max paso 4 
+    W_4 = _mm_min_ps(W_3, XI_3);
+    XI_4 = _mm_max_ps(W_3, XI_3);
+    Y_4 = _mm_min_ps(Y_3,  ZI_3);
+    ZI_4 = _mm_max_ps(Y_3,  ZI_3);
+
+    //Shuffle paso 5 
+    W_5 = _mm_shuffle_ps(XI_4, W_4, __MM_SHUFFLE(1,0,1,0));
+    Y_5 = _mm_shuffle_ps(ZI_4, Y_4, __MM_SHUFFLE(1,0,1,0));
+    XI_5 = _mm_shuffle_ps(XI_4, W_4, __MM_SHUFFLE(3,2,3,2));
+    ZI_5 = _mm_shuffle_ps(ZI_4, Y_4, __MM_SHUFFLE(3,2,3,2));
+
+    //Shuffle paso 6 
+    W_6 = _mm_shuffle_ps(W_5, W_5, __MM_SHUFFLE(3,1,2,0));
+    XI_6 = _mm_shuffle_ps(XI_5, XI_5, __MM_SHUFFLE(3,1,2,0));
+    Y_6 = _mm_shuffle_ps(Y_5, Y_5, __MM_SHUFFLE(3,1,2,0));
+    ZI_6 = _mm_shuffle_ps(ZI_5, ZI_5, __MM_SHUFFLE(3,1,2,0));
+
+    //min max paso 7
+    W_7 =  _mm_min_ps(W_6, XI_6);
+    XI_7 = _mm_max_ps(W_6, XI_6);
+    Y_7 =  _mm_min_ps(Y_6, ZI_6);
+    ZI_7 = _mm_max_ps(Y_6, ZI_6);
+
+    //Shuffle paso 8 
+    W_8 = _mm_shuffle_ps(XI_7, W_7, __MM_SHUFFLE(1,0,1,0));
+    Y_8 = _mm_shuffle_ps(ZI_7, Y_7, __MM_SHUFFLE(1,0,1,0));
+    XI_8 = _mm_shuffle_ps(XI_7, W_7, __MM_SHUFFLE(3,2,3,2));
+    ZI_8 = _mm_shuffle_ps(ZI_7, Y_7, __MM_SHUFFLE(3,2,3,2));
+
+    //Shuffle paso 9
+    *WF = _mm_shuffle_ps(W_8, W_8, __MM_SHUFFLE(3,1,2,0));
+    *XF = _mm_shuffle_ps(XI_8, XI_8, __MM_SHUFFLE(3,1,2,0));
+    *YF = _mm_shuffle_ps(Y_8, Y_8, __MM_SHUFFLE(3,1,2,0));
+    *ZF = _mm_shuffle_ps(ZI_8, ZI_8, __MM_SHUFFLE(3,1,2,0));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
 // - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
 // - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
