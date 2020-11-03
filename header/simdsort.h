@@ -22,7 +22,7 @@ void storeSequence (float* sequence, __m128 WF, __m128 XF, __m128 YF, __m128 ZF)
 
 void inRegister (__m128 A, __m128 B, __m128 C, __m128 D, __m128* W, __m128* X, __m128* Y, __m128* Z);
 
-void bmn (__m128 W_F, __m128 X_F, __m128 Y_F, __m128 Z_F, __m128* WF, __m128* XF, __m128* YF, __m128* ZF);
+void BMN (__m128 W_F, __m128 X_F, __m128 Y_F, __m128 Z_F, __m128* WF, __m128* XF, __m128* YF, __m128* ZF);
 
 void print16Sequence (float* sequence);
 
