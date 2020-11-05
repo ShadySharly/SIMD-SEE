@@ -42,12 +42,12 @@ void getParams (int argc, char** argv, char* iValue, char* oValue, char* nValue,
                     exit(EXIT_FAILURE);
                 }       
 
-                printf(" => Ruta del archivo de entrada (-i): %s\n", iValue);
+                //printf(" => Ruta del archivo de entrada (-i): %s\n", iValue);
                 break;
             
             case 'o':
                 strcpy(oValue, optarg);
-                printf(" => Ruta del archivo de salida (-o): %s\n", oValue);
+                //printf(" => Ruta del archivo de salida (-o): %s\n", oValue);
                 break;
             
             case 'N':
@@ -61,7 +61,7 @@ void getParams (int argc, char** argv, char* iValue, char* oValue, char* nValue,
                     exit(EXIT_FAILURE);
                 }
             
-                printf(" => Largo de la lista (-N): %s\n", nValue);
+                //printf(" => Largo de la lista (-N): %s\n", nValue);
                 break;
             
             case 'd':
@@ -75,7 +75,7 @@ void getParams (int argc, char** argv, char* iValue, char* oValue, char* nValue,
                     exit(EXIT_FAILURE);
                 }
 
-                printf(" => Opcion debug (-d): %s\n", dValue);
+                //printf(" => Opcion debug (-d): %s\n", dValue);
                 break;
             
             case '?':
@@ -222,98 +222,154 @@ void inRegister (__m128 A, __m128 B, __m128 C, __m128 D, __m128* W_F, __m128* X_
     *Z_F = _mm_shuffle_ps (Y_2, Z_2, _MM_SHUFFLE (3, 2, 3, 2));
 }
 
-float* MWMS (float** sequence, int N, int L) {
-
-    int totalIndex = N;
-    float* finalSequence = (float*)malloc(N * sizeof(float));
-
-    if (finalSequence != NULL) {
-
-        while (totalIndex > 0) {
-            
-        }
-
-        return finalSequence;
-
-    }
-
-    else {
-        printf("ERROR AL ALOJAR MEMORIA PARA LA SECUENCIA FINAL\n");
-        printf (" => Programa abortado\n");
-        exit(EXIT_FAILURE);   
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // - INPUTS: 4 registros desde inRegister
 // - OUTPUTS: 4 arreglos ordenados
 // - DESCRIPTION: BMN
 
-void BMN (__m128 W_F, __m128 X_F, __m128 Y_F, __m128 Z_F, __m128* WF, __m128* XF, __m128* YF, __m128* ZF){
+void BMN (__m128 A, __m128 B, __m128* W, __m128* X) {
     
-    __m128 W_1, W_2, W_3, W_4, W_5, W_6, W_7, W_8;
-    __m128 XI, XI_1, XI_2, XI_3, XI_4, XI_5, XI_6, XI_7, XI_8;
-    __m128 Y_1, Y_2, Y_3, Y_4, Y_5, Y_6, Y_7, Y_8;
-    __m128 ZI, ZI_1, ZI_2, ZI_3, ZI_4, ZI_5, ZI_6, ZI_7, ZI_8;
-
+    __m128 A_1, A_2, A_3, A_4, A_5, A_6, A_7, A_8;
+    __m128 BI_1, BI_2, BI_3, BI_4, BI_5, BI_6, BI_7, BI_8, BI;
 
     //Shuffle 1, se reordenan los registros X e Y en orden decreciente
-    XI = _mm_shuffle_ps(X_F, X_F, _MM_SHUFFLE(0,1,2,3));
-    ZI = _mm_shuffle_ps(Z_F, Z_F, _MM_SHUFFLE(0,1,2,3));
+    BI = _mm_shuffle_ps(B, B, _MM_SHUFFLE(0, 1, 2, 3));
 
     //min max paso 1
-    W_1 = _mm_min_ps(W_F, XI);
-    Y_1 = _mm_min_ps(Y_F, ZI);
-    XI_1 = _mm_max_ps(W_F, XI);
-    ZI_1 = _mm_max_ps(Y_F, ZI);
+    A_1 = _mm_min_ps(A, BI);
+    BI_1 = _mm_max_ps(A, BI);
 
     //Shuffle paso 2
-    W_2 = _mm_shuffle_ps(W_1, XI_1, _MM_SHUFFLE(1,0,1,0));
-    Y_2 = _mm_shuffle_ps(Y_1, ZI_1, _MM_SHUFFLE(1,0,1,0));
-    XI_2 = _mm_shuffle_ps(W_1, XI_1 , _MM_SHUFFLE(3,2,3,2));
-    ZI_2 = _mm_shuffle_ps(Y_1, ZI_1, _MM_SHUFFLE(3,2,3,2));
+    A_2 = _mm_shuffle_ps(A_1, BI_1, _MM_SHUFFLE(1, 0, 1, 0));
+    BI_2 = _mm_shuffle_ps(A_1, BI_1 , _MM_SHUFFLE(3, 2, 3, 2));
 
     //Shufle paso 3
-    W_3 = _mm_shuffle_ps(W_2, W_2, _MM_SHUFFLE(3,1,2,0));
-    XI_3 = _mm_shuffle_ps(XI_2, XI_2, _MM_SHUFFLE(3,1,2,0));
-    Y_3 = _mm_shuffle_ps(Y_2, Y_2, _MM_SHUFFLE(3,1,2,0));
-    ZI_3 = _mm_shuffle_ps(ZI_2, ZI_2, _MM_SHUFFLE(3,1,2,0));
+    A_3 = _mm_shuffle_ps(A_2, A_2, _MM_SHUFFLE(3, 1, 2, 0));
+    BI_3 = _mm_shuffle_ps(BI_2, BI_2, _MM_SHUFFLE(3, 1, 2, 0));
 
     //min max paso 4 
-    W_4 = _mm_min_ps(W_3, XI_3);
-    XI_4 = _mm_max_ps(W_3, XI_3);
-    Y_4 = _mm_min_ps(Y_3,  ZI_3);
-    ZI_4 = _mm_max_ps(Y_3,  ZI_3);
+    A_4 = _mm_min_ps(A_3, BI_3);
+    BI_4 = _mm_max_ps(A_3, BI_3);
 
     //Shuffle paso 5 
-    W_5 = _mm_shuffle_ps(W_4, XI_4, _MM_SHUFFLE(1,0,1,0));
-    Y_5 = _mm_shuffle_ps(Y_4, ZI_4, _MM_SHUFFLE(1,0,1,0));
-    XI_5 = _mm_shuffle_ps(W_4, XI_4, _MM_SHUFFLE(3,2,3,2));
-    ZI_5 = _mm_shuffle_ps(Y_4, ZI_4, _MM_SHUFFLE(3,2,3,2));
+    A_5 = _mm_shuffle_ps(A_4, BI_4, _MM_SHUFFLE(1, 0, 1, 0));
+    BI_5 = _mm_shuffle_ps(A_4, BI_4, _MM_SHUFFLE(3, 2, 3, 2));
 
     //Shuffle paso 6 
-    W_6 = _mm_shuffle_ps(W_5, W_5, _MM_SHUFFLE(3,1,2,0));
-    XI_6 = _mm_shuffle_ps(XI_5, XI_5, _MM_SHUFFLE(3,1,2,0));
-    Y_6 = _mm_shuffle_ps(Y_5, Y_5, _MM_SHUFFLE(3,1,2,0));
-    ZI_6 = _mm_shuffle_ps(ZI_5, ZI_5, _MM_SHUFFLE(3,1,2,0));
+    A_6 = _mm_shuffle_ps(A_5, A_5, _MM_SHUFFLE(3, 1, 2, 0));
+    BI_6 = _mm_shuffle_ps(BI_5, BI_5, _MM_SHUFFLE(3, 1, 2, 0));
 
     //min max paso 7
-    W_7 =  _mm_min_ps(W_6, XI_6);
-    XI_7 = _mm_max_ps(W_6, XI_6);
-    Y_7 =  _mm_min_ps(Y_6, ZI_6);
-    ZI_7 = _mm_max_ps(Y_6, ZI_6);
+    A_7 =  _mm_min_ps(A_6, BI_6);
+    BI_7 = _mm_max_ps(A_6, BI_6);
 
     //Shuffle paso 8 
-    W_8 = _mm_shuffle_ps(W_7, XI_7, _MM_SHUFFLE(1,0,1,0));
-    Y_8 = _mm_shuffle_ps(Y_7, ZI_7, _MM_SHUFFLE(1,0,1,0));
-    XI_8 = _mm_shuffle_ps(W_7, XI_7, _MM_SHUFFLE(3,2,3,2));
-    ZI_8 = _mm_shuffle_ps(Y_7, ZI_7, _MM_SHUFFLE(3,2,3,2));
+    A_8 = _mm_shuffle_ps(A_7, BI_7, _MM_SHUFFLE(1, 0, 1, 0));
+    BI_8 = _mm_shuffle_ps(A_7, BI_7, _MM_SHUFFLE(3, 2, 3, 2));
 
     //Shuffle paso 9
-    *WF = _mm_shuffle_ps(W_8, W_8, _MM_SHUFFLE(3,1,2,0));
-    *XF = _mm_shuffle_ps(XI_8, XI_8, _MM_SHUFFLE(3,1,2,0));
-    *YF = _mm_shuffle_ps(Y_8, Y_8, _MM_SHUFFLE(3,1,2,0));
-    *ZF = _mm_shuffle_ps(ZI_8, ZI_8, _MM_SHUFFLE(3,1,2,0));
+    *W = _mm_shuffle_ps(A_8, A_8, _MM_SHUFFLE(3,1,2,0));
+    *X = _mm_shuffle_ps(BI_8, BI_8, _MM_SHUFFLE(3,1,2,0));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
+// - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
+// - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
+//                digito y es positivo
+
+void mergeSIMD (__m128 A, __m128 B, __m128 C, __m128 D, __m128* W, __m128* X, __m128* Y, __m128* Z) {
+
+    __m128 O1, O2;
+    float b[4] __attribute__((aligned(16))) = { 0.0, 0.0, 0.0, 0.0 };
+    float d[4] __attribute__((aligned(16))) = { 0.0, 0.0, 0.0, 0.0 };
+
+    _mm_store_ps(b, B);
+    _mm_store_ps(d, D);
+
+    // Se aplica la BMN con los primeros 4 elementos de cada secuencia de 8
+    BMN (A, C, &O1, &O2);
+    *W = O1;
+
+    if (b[0] < d[0]) {
+        BMN (O2, B, &O1, &O2);
+        *X = O1;
+
+        BMN (O2, D, &O1, &O2);
+        *Y = O1;
+        *Z = O2;
+    }
+
+    else if (b[0] > d[0]) {
+        BMN (O2, D, &O1, &O2);
+        *X = O1;
+
+        BMN (O2, B, &O1, &O2);
+        *Y = O1;
+        *Z = O2;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
+// - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
+// - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
+//                digito y es positivo
+
+float* MWMS (float** sequence, int N, int L) {
+
+    float min;
+    int seqIndex, minIndex, firstIndex, outIndex;
+    float* outSequence = (float*)malloc(N * sizeof(float));
+    int* indexArray = initIndexArray (L);
+
+    outIndex = 0;
+    firstIndex = 1;
+    
+    while (outIndex < N) {
+        
+        for (seqIndex = 0; seqIndex < L; seqIndex++) {
+            int numIndex = indexArray[seqIndex];
+
+            if (numIndex < 16) {
+                if (firstIndex == 1) {
+                    minIndex = seqIndex;
+                    min = sequence[seqIndex][numIndex];
+                    firstIndex = 0;
+                }
+
+                //printf("%f < %f\n", sequence[seqIndex][numIndex], min);
+
+                if (sequence[seqIndex][numIndex] < min) {
+                    minIndex = seqIndex;
+                    min = sequence[seqIndex][numIndex];
+                }
+            }
+        }
+        outSequence[outIndex] = min;
+        indexArray[minIndex] = indexArray[minIndex] + 1;
+        firstIndex = 1;
+        outIndex++;
+    }
+    
+    return outSequence;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
+// - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
+// - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
+//                digito y es positivo
+
+int* initIndexArray (int L) {
+
+    int index;
+    int* array = (int*)malloc(L * sizeof(int));
+
+    for (index = 0; index < L; index++)
+        array[index] = 0;
+
+    return array;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,6 +414,28 @@ void storeSequence (float* sequence, __m128 WF, __m128 XF, __m128 YF, __m128 ZF)
 // - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
 //                digito y es positivo
 
+void writeSequence (float* sequence, char* outputName, int N) {
+
+    FILE* outputFile = fopen(outputName, "wb");
+    
+    if (outputFile != NULL) {
+        fwrite(sequence, sizeof(float), N, outputFile);
+        fclose(outputFile);
+    }
+
+    else{
+        printf("ERROR AL CREAR ARCHIVO DE SALIDA\n");
+        printf (" => Programa abortado\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
+// - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
+// - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
+//                digito y es positivo
+
 void print16Sequence (float* sequence) {
 
     for (int i = 0; i < 16; i = i + 4) {
@@ -372,11 +450,24 @@ void print16Sequence (float* sequence) {
 // - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
 //                digito y es positivo
 
+void printSequence (float* sequence, int N) {
+
+    for (int i = 0; i < N; i++) {
+        printf("%f\n", sequence[i]);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// - INPUTS: - input: Cadena de caracteres a evaluar si corresponde a un numero entero positivo o no
+// - OUTPUTS: Valor booleano 1 si es entero positivo, 0 en caso contrario
+// - DESCRIPTION: Verifica si una cadena de caracteres de entrada posee en cada una de sus posiciones un caracter que es
+//                digito y es positivo
+
 float** sequenceMalloc (int N) {
 
     int L, index;
     L = N / 16;
-    printf("Numero de Secuencias: %d\n", L);
+
     float** sequences = (float**)malloc(L * sizeof(float*));
 
     if (sequences != NULL) {
@@ -399,4 +490,6 @@ float** sequenceMalloc (int N) {
     }    
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////// END ////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
